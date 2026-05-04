@@ -1,77 +1,16 @@
-# hsp-cs
+# hsp-cs — DEPRECATED
 
-C# language server plugin for Claude Code and Codex using [csharp-ls](https://github.com/razzmatazz/csharp-language-server) — a Roslyn-based LSP.
+> **This plugin is obsolete.** Use **[hsp](https://github.com/holo-q/hsp)** instead — a single unified plugin that routes Python, C#, and future languages through one MCP server with built-in language detection.
 
-## How it works
+hsp-cs was the original C# language server plugin for Claude Code. Its functionality has been absorbed into the unified HSP plugin, which ships built-in routes for both C# (csharp-ls) and Python (ty + basedpyright) with automatic file-extension routing, shared broker sessions, and the full graph-operator tool surface.
 
-Two-layer LSP setup (same design as [hsp-py](https://github.com/holo-q/hsp-py)):
+## Migration
 
-1. **`lspServers`** — registers csharp-ls with Claude Code's native integration so push diagnostics surface automatically as `<new-diagnostics>` reminders after edits.
+1. Uninstall hsp-cs
+2. Install **[hsp](https://github.com/holo-q/hsp)**
+3. Done — no configuration changes needed. HSP auto-detects C# projects via `.cs`, `.sln`, `.csproj`, and `Directory.Build.props` markers.
 
-2. **`mcpServers` (hsp bridge)** — spawns csharp-ls as a subprocess and exposes the full LSP protocol as MCP tools with symbol-name addressing, multi-target batching, provenance headers, and filesystem watching via `workspace/didChangeWatchedFiles`.
+## Links
 
-3. **PreToolUse hook** — redirects Claude Code's built-in `LSP()` tool to the MCP tools, which cover more methods and return compact, agent-friendly output.
-
-## Codex support
-
-This repo also ships a Codex-native plugin under `plugins/hsp-cs/` and a repo-local marketplace at `.agents/plugins/marketplace.json`.
-
-For local testing from this repo:
-
-```bash
-codex plugin marketplace add .
-```
-
-Then restart Codex, open `/plugins`, select the `hsp-cs` marketplace, and install `hsp-cs`.
-
-The Codex plugin keeps the same LSP server declaration and MCP bridge as the Claude Code plugin. The Claude Code redirect hook remains Claude-specific.
-
-## Prerequisites
-
-Two binaries need to be on `PATH`: `csharp-ls` and `uvx`.
-
-### csharp-ls (the LSP)
-
-```bash
-dotnet tool install --global csharp-ls
-```
-
-Put `~/.dotnet/tools` on your PATH if it isn't already:
-
-```bash
-export PATH="$HOME/.dotnet/tools:$PATH"
-```
-
-### uv / uvx (to fetch the bridge)
-
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-The bridge (`hsp`) is fetched and cached automatically by `uvx` on first plugin spawn — no manual install.
-
-## Tools provided
-
-All standard LSP operations are exposed as `lsp_*` MCP tools: `lsp_references`, `lsp_hover`, `lsp_definition`, `lsp_workspace_symbols`, `lsp_rename`, `lsp_call_hierarchy_{incoming,outgoing}`, `lsp_diagnostics`, `lsp_document_symbols`, `lsp_completion`, `lsp_code_actions`, `lsp_move_file`, and more. All support symbol-name addressing and multi-target batching.
-
-Plus: push diagnostics via the native `lspServers` integration, surfaced automatically after edits.
-
-## Configuration
-
-The plugin ships csharp-ls as the sole LSP. To add a fallback (e.g. OmniSharp for refactorings csharp-ls doesn't implement), override `LSP_SERVERS` in your user settings:
-
-```
-LSP_SERVERS=csharp-ls;OmniSharp -lsp
-```
-
-Or swap to Microsoft's official Roslyn Language Server via `LSP_REPLACE`:
-
-```
-LSP_REPLACE=csharp-ls=dotnet /path/to/Microsoft.CodeAnalysis.LanguageServer.dll --stdio
-```
-
-## More Information
-
-- [csharp-ls](https://github.com/razzmatazz/csharp-language-server)
-- [hsp](https://github.com/holo-q/hsp) — the LSP-to-MCP bridge
-- [hsp-py](https://github.com/holo-q/hsp-py) — sibling plugin for Python using `ty`
+- **[hsp](https://github.com/holo-q/hsp)** — the unified LSP-to-MCP bridge (install this)
+- [csharp-ls](https://github.com/razzmatazz/csharp-language-server) — the underlying C# LSP (still used by hsp's C# route)
